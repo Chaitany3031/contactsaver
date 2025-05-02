@@ -84,27 +84,36 @@
 
     class ContactList {
       constructor() {
-        this.contacts = [];
+        this.contacts = JSON.parse(localStorage.getItem('contacts')) || [];
+        this.render();
+      }
+
+      saveToStorage() {
+        localStorage.setItem('contacts', JSON.stringify(this.contacts));
       }
 
       addContact(contact) {
         this.contacts.push(contact);
+        this.saveToStorage();
         this.render();
       }
 
       deleteContact(index) {
         this.contacts.splice(index, 1);
+        this.saveToStorage();
         this.render();
       }
 
       toggleFavorite(index) {
         this.contacts[index].favorite = !this.contacts[index].favorite;
+        this.saveToStorage();
         this.render();
       }
 
       editContact(index, name, phone) {
         this.contacts[index].name = name;
         this.contacts[index].phone = phone;
+        this.saveToStorage();
         this.render();
       }
 
@@ -153,7 +162,6 @@
 
           li.appendChild(infoDiv);
           li.appendChild(actionsDiv);
-
           listEl.appendChild(li);
         });
       }
