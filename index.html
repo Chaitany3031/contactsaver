@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Phone Contacts App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f2f2f2;
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      max-width: 400px;
+      margin: auto;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px 0;
+      font-size: 1rem;
+    }
+    #contact-list {
+      margin-top: 20px;
+      list-style: none;
+      padding: 0;
+      max-width: 600px;
+      margin: 20px auto;
+    }
+    #contact-list li {
+      background: #fff;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-left: 5px solid #007BFF;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .contact-info {
+      flex: 1 1 60%;
+    }
+    .actions {
+      display: flex;
+      gap: 5px;
+    }
+    .fav {
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+    @media (max-width: 600px) {
+      .contact-info {
+        flex-basis: 100%;
+        margin-bottom: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Phone Contacts</h1>
+
+  <div class="form-group">
+    <input type="text" id="name" placeholder="Name" />
+    <input type="text" id="phone" placeholder="Phone Number" maxlength="10" />
+    <button id="addContact">Add Contact</button>
+  </div>
+
+  <ul id="contact-list"></ul>
+
+  <script>
+    class Contact {
+      constructor(name, phone, favorite = false) {
+        this.name = name;
+        this.phone = phone;
+        this.favorite = favorite;
+      }
+    }
+
+    class ContactList {
+      constructor() {
+        this.contacts = [];
+      }
+
+      addContact(contact) {
+        this.contacts.push(contact);
+        this.render();
+      }
+
+      deleteContact(index) {
+        this.contacts.splice(index, 1);
+        this.render();
+      }
+
+      toggleFavorite(index) {
+        this.contacts[index].favorite = !this.contacts[index].favorite;
+        this.render();
+      }
+
+      editContact(index, name, phone) {
+        this.contacts[index].name = name;
+        this.contacts[index].phone = phone;
+        this.render();
+      }
+
+      render() {
+        const listEl = document.getElementById("contact-list");
+        listEl.innerHTML = "";
+
+        this.contacts.forEach((contact, index) => {
+          const li = document.createElement("li");
+
+          const infoDiv = document.createElement("div");
+          infoDiv.className = "contact-info";
+          infoDiv.textContent = `${index + 1}. ${contact.name} - ${contact.phone}`;
+
+          const favBtn = document.createElement("span");
+          favBtn.className = "fav";
+          favBtn.textContent = contact.favorite ? "❤️" : "🤍";
+          favBtn.title = "Toggle Favorite";
+          favBtn.addEventListener("click", () => this.toggleFavorite(index));
+
+          const editBtn = document.createElement("button");
+          editBtn.textContent = "Edit";
+          editBtn.addEventListener("click", () => {
+            const newName = prompt("Edit name:", contact.name);
+            const newPhone = prompt("Edit phone:", contact.phone);
+            if (newName && /^\d{10}$/.test(newPhone)) {
+              this.editContact(index, newName, newPhone);
+            } else {
+              alert("Please enter a valid 10-digit phone number.");
+            }
+          });
+
+          const deleteBtn = document.createElement("button");
+          deleteBtn.textContent = "Delete";
+          deleteBtn.addEventListener("click", () => {
+            if (confirm("Are you sure you want to delete this contact?")) {
+              this.deleteContact(index);
+            }
+          });
+
+          const actionsDiv = document.createElement("div");
+          actionsDiv.className = "actions";
+          actionsDiv.appendChild(favBtn);
+          actionsDiv.appendChild(editBtn);
+          actionsDiv.appendChild(deleteBtn);
+
+          li.appendChild(infoDiv);
+          li.appendChild(actionsDiv);
+
+          listEl.appendChild(li);
+        });
+      }
+    }
+
+    const contactList = new ContactList();
+
+    document.getElementById("addContact").addEventListener("click", () => {
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+
+      if (!name || !phone) {
+        alert("Please enter both name and phone number.");
+        return;
+      }
+
+      if (!/^\d{10}$/.test(phone)) {
+        alert("Phone number must be exactly 10 digits.");
+        return;
+      }
+
+      const contact = new Contact(name, phone);
+      contactList.addContact(contact);
+
+      document.getElementById("name").value = "";
+      document.getElementById("phone").value = "";
+    });
+  </script>
+
+</body>
+</html>
